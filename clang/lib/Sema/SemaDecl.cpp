@@ -5341,33 +5341,33 @@ Decl *Sema::ParsedFreeStandingDeclSpec(Scope *S, AccessSpecifier AS,
         TypeSpecType == DeclSpec::TST_union ||
         TypeSpecType == DeclSpec::TST_enum) {
 
-      auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &AL) {
-        auto form = AL.getForm();
+      auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &attribute) {
+        auto form = attribute.getForm();
         // Inspect, because I can't debug build for some reason.
         fprintf(stderr, "--- <EmitAttributeDiagnostic> \n");
-        fprintf(stderr, "ParsedAttr.isCXX11Attribute() = %d\n", AL.isCXX11Attribute());
-        fprintf(stderr, "ParsedAttr.isInvalid() = %d\n", AL.isInvalid());
-        fprintf(stderr, "ParsedAttr.isTypeAttr() = %d\n", AL.isTypeAttr());
+        fprintf(stderr, "ParsedAttr.isCXX11Attribute() = %d\n", attribute.isCXX11Attribute());
+        fprintf(stderr, "ParsedAttr.isInvalid() = %d\n", attribute.isInvalid());
+        fprintf(stderr, "ParsedAttr.isTypeAttr() = %d\n", attribute.isTypeAttr());
         fprintf(stderr, "ParsedAttr.getForm().isAlignas() = %d\n", form.isAlignas());
         fprintf(stderr, "getLangOpts().C11 = %d\n", getLangOpts().C11);
         fprintf(stderr, "getLangOpts().C99 = %d\n", getLangOpts().C99);
         fprintf(stderr, "getLangOpts().C23 = %d\n", getLangOpts().C23);
 
-        if (AL.isCXX11Attribute() /*&& getLangOpts().C11*/) {
+        if (attribute.isCXX11Attribute() /*&& getLangOpts().C11*/) {
           // There could be many attributes, the exception need be in place for
           // _Alignas(...). 
-          Diag(AL.getLoc(), diag::err_attribute_not_supported_in_lang)
-              << AL << GetDiagnosticTypeSpecifierID(DS);
+          Diag(attribute.getLoc(), diag::err_attribute_not_supported_in_lang)
+              << attribute << GetDiagnosticTypeSpecifierID(DS);
           fprintf(stderr, "Firing isCXX11Attribute %s: %d\n", __FILE__, __LINE__);
         } else if (form.isAlignas()){
           fprintf(stderr, "Firing form.isAlignas() %s: %d\n", __FILE__, __LINE__);
         }
         else {
           fprintf(stderr, "Firing normal %s: %d\n", __FILE__, __LINE__);
-          Diag(AL.getLoc(), AL.isRegularKeywordAttribute()
+          Diag(attribute.getLoc(), attribute.isRegularKeywordAttribute()
                                 ? diag::err_declspec_keyword_has_no_effect
                                 : diag::warn_declspec_attribute_ignored)
-              << AL << GetDiagnosticTypeSpecifierID(DS);
+              << attribute << GetDiagnosticTypeSpecifierID(DS);
         }
         fprintf(stderr, "--- </EmitAttributeDiagnostic> \n");
       };

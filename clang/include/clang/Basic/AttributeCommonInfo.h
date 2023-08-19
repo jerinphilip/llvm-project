@@ -94,7 +94,7 @@ public:
           IsRegularKeywordAttribute(IsRegularKeywordAttribute) {}
     constexpr Form(tok::TokenKind Tok)
         : SyntaxUsed(AS_Keyword), SpellingIndex(SpellingNotCalculated),
-          IsAlignas(Tok == tok::kw_alignas),
+          IsAlignas(Tok == tok::kw_alignas || Tok == tok::kw__Alignas),
           IsRegularKeywordAttribute(tok::isRegularKeywordAttribute(Tok)) {}
 
     Syntax getSyntax() const { return Syntax(SyntaxUsed); }

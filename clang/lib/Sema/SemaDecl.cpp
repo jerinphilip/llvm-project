@@ -53,7 +53,6 @@
 #include <functional>
 #include <optional>
 #include <unordered_map>
-#include <stdio.h>
 
 using namespace clang;
 using namespace sema;
@@ -5343,33 +5342,15 @@ Decl *Sema::ParsedFreeStandingDeclSpec(Scope *S, AccessSpecifier AS,
 
       auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &attribute) {
         auto form = attribute.getForm();
-        // Inspect, because I can't debug build for some reason.
-        fprintf(stderr, "--- <EmitAttributeDiagnostic> \n");
-        fprintf(stderr, "ParsedAttr.isCXX11Attribute() = %d\n", attribute.isCXX11Attribute());
-        fprintf(stderr, "ParsedAttr.isInvalid() = %d\n", attribute.isInvalid());
-        fprintf(stderr, "ParsedAttr.isTypeAttr() = %d\n", attribute.isTypeAttr());
-        fprintf(stderr, "ParsedAttr.getForm().isAlignas() = %d\n", form.isAlignas());
-        fprintf(stderr, "getLangOpts().C11 = %d\n", getLangOpts().C11);
-        fprintf(stderr, "getLangOpts().C99 = %d\n", getLangOpts().C99);
-        fprintf(stderr, "getLangOpts().C23 = %d\n", getLangOpts().C23);
-
-        if (attribute.isCXX11Attribute() /*&& getLangOpts().C11*/) {
-          // There could be many attributes, the exception need be in place for
-          // _Alignas(...). 
-          Diag(attribute.getLoc(), diag::err_attribute_not_supported_in_lang)
+        if (form.isAlignas() && getLangOpts().C11) {
+          Diag(attribute.getLoc(), diag::warn_declspec_attribute_ignored)
               << attribute << GetDiagnosticTypeSpecifierID(DS);
-          fprintf(stderr, "Firing isCXX11Attribute %s: %d\n", __FILE__, __LINE__);
-        } else if (form.isAlignas()){
-          fprintf(stderr, "Firing form.isAlignas() %s: %d\n", __FILE__, __LINE__);
-        }
-        else {
-          fprintf(stderr, "Firing normal %s: %d\n", __FILE__, __LINE__);
+        } else {
           Diag(attribute.getLoc(), attribute.isRegularKeywordAttribute()
                                 ? diag::err_declspec_keyword_has_no_effect
-                                : diag::warn_declspec_attribute_ignored)
+                                : diag::warn_declspec_attribute_ignored_place_after)
               << attribute << GetDiagnosticTypeSpecifierID(DS);
         }
-        fprintf(stderr, "--- </EmitAttributeDiagnostic> \n");
       };
 
       llvm::for_each(DS.getAttributes(), EmitAttributeDiagnostic);

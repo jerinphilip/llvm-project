@@ -186,14 +186,14 @@ public:
   bool isGNUScope() const;
   bool isClangScope() const;
 
-  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11 || IsAlignas; }
+  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11; }
 
   bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 
   /// The attribute is spelled [[]] in either C or C++ mode, including standard
   /// attributes spelled with a keyword, like alignas.
   bool isStandardAttributeSyntax() const {
-    return isCXX11Attribute() || isC23Attribute();
+    return isCXX11Attribute() || isC23Attribute() || IsAlignas;
   }
 
   bool isGNUAttribute() const { return SyntaxUsed == AS_GNU; }

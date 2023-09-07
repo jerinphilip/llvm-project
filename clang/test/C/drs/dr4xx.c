@@ -168,7 +168,7 @@ void dr444(void) {
   * where the diagnostic recommends causes a different, more inscrutable error
   * about anonymous structures.
   */
-  _Alignas(int) struct T { /* expected-warning {{attribute '_Alignas' is ignored, place it after "struct" to apply attribute to type declaration}} */
+  _Alignas(int) struct T { /* expected-warning {{attribute '_Alignas' before "struct" is ignored}} */
     int i;
   };
 

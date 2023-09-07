@@ -186,8 +186,8 @@ public:
   bool isGNUScope() const;
   bool isClangScope() const;
 
+  bool isAlignas() const { return IsAlignas; }
   bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11; }
-
   bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 
   /// The attribute is spelled [[]] in either C or C++ mode, including standard

@@ -5341,17 +5341,18 @@ Decl *Sema::ParsedFreeStandingDeclSpec(Scope *S, AccessSpecifier AS,
         TypeSpecType == DeclSpec::TST_enum) {
 
       auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &AL) {
+        unsigned DiagnosticId;
         if (AL.isC11AlignasAttribute()) {
-          Diag(AL.getLoc(), diag::warn_declspec_attribute_ignored)
-              << AL << GetDiagnosticTypeSpecifierID(DS);
-
+          // Don't use the message with placement with _Alignas.
+          // This is because C doesnt let you use _Alignas on type declarations.
+          DiagnosticId = diag::warn_declspec_attribute_ignored;
+        } else if (AL.isRegularKeywordAttribute()) {
+          DiagnosticId = diag::err_declspec_keyword_has_no_effect;
         } else {
-          Diag(AL.getLoc(),
-               AL.isRegularKeywordAttribute()
-                   ? diag::err_declspec_keyword_has_no_effect
-                   : diag::warn_declspec_attribute_ignored_place_after)
-              << AL << GetDiagnosticTypeSpecifierID(DS);
+          DiagnosticId = diag::warn_declspec_attribute_ignored_place_after;
         }
+        Diag(AL.getLoc(), DiagnosticId)
+            << AL << GetDiagnosticTypeSpecifierID(DS);
       };
 
       llvm::for_each(DS.getAttributes(), EmitAttributeDiagnostic);

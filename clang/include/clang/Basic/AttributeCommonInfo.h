@@ -199,6 +199,11 @@ public:
     return getParsedKind() == AT_Aligned && isKeywordAttribute() && !IsAlignas;
   }
 
+  bool isC23AlignasAttribute() const {
+    // Case for when `alignas` keyword is used in C23.
+    return isC23Attribute() && IsAlignas;
+  }
+
   bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11 || IsAlignas; }
   bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 

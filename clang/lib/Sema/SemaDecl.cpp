@@ -5342,7 +5342,7 @@ Decl *Sema::ParsedFreeStandingDeclSpec(Scope *S, AccessSpecifier AS,
 
       auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &AL) {
         unsigned DiagnosticId;
-        if (AL.isC11AlignasAttribute()) {
+        if (AL.isC11AlignasAttribute() || AL.isC23AlignasAttribute()) {
           // Don't use the message with placement with _Alignas.
           // This is because C doesnt let you use _Alignas on type declarations.
           DiagnosticId = diag::warn_declspec_attribute_ignored;

@@ -94,7 +94,7 @@ public:
           IsRegularKeywordAttribute(IsRegularKeywordAttribute) {}
     constexpr Form(tok::TokenKind Tok)
         : SyntaxUsed(AS_Keyword), SpellingIndex(SpellingNotCalculated),
-          IsAlignas(Tok == tok::kw_alignas || Tok == tok::kw__Alignas),
+          IsAlignas(Tok == tok::kw_alignas),
           IsRegularKeywordAttribute(tok::isRegularKeywordAttribute(Tok)) {}
 
     Syntax getSyntax() const { return Syntax(SyntaxUsed); }
@@ -186,8 +186,20 @@ public:
   bool isGNUScope() const;
   bool isClangScope() const;
 
-  bool isAlignas() const { return IsAlignas; }
-  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11; }
+  /// Determine if the attribute corresponds to the usage of _Alignas, available
+  /// since C11.
+  bool isC11AlignasAttribute() const {
+    // The following complex chaining is used to recover _Alignas. In the
+    // current state, IsAlignAs really stands for whether the parsed attribute
+    // corresponds to the usage of `alignas` keyword in source.
+
+    // If getParsedKind turned out to corresponds to that of alignas, is a
+    // KeywordAttribute and is not `alignas` keyword, we reason this is C11
+    // _Alignas.
+    return getParsedKind() == AT_Aligned && isKeywordAttribute() && !IsAlignas;
+  }
+
+  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11 || IsAlignas; }
   bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 
   /// The attribute is spelled [[]] in either C or C++ mode, including standard

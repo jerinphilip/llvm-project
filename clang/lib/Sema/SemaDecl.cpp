@@ -5341,7 +5341,7 @@ Decl *Sema::ParsedFreeStandingDeclSpec(Scope *S, AccessSpecifier AS,
         TypeSpecType == DeclSpec::TST_enum) {
 
       auto EmitAttributeDiagnostic = [this, &DS](const ParsedAttr &AL) {
-        if (AL.isAlignas() && !getLangOpts().CPlusPlus) {
+        if (AL.isC11AlignasAttribute()) {
           Diag(AL.getLoc(), diag::warn_declspec_attribute_ignored)
               << AL << GetDiagnosticTypeSpecifierID(DS);
 

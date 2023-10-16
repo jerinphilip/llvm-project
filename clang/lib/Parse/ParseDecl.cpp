@@ -3405,7 +3405,7 @@ void Parser::ParseDeclarationSpecifiers(
       else {
         // Reject C++11 / C23 attributes that aren't type attributes.
         for (const ParsedAttr &PA : attrs) {
-          if (!PA.isAlignas() && !PA.isCXX11Attribute() &&
+          if (!PA.isCXX11Attribute() &&
               !PA.isC23Attribute() && !PA.isRegularKeywordAttribute())
             continue;
           if (PA.getKind() == ParsedAttr::UnknownAttribute)

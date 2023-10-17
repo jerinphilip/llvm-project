@@ -145,6 +145,11 @@ Attribute Changes in Clang
   supports but that are never the result of default argument promotion, such as
   ``float``. (`#59824: <https://github.com/llvm/llvm-project/issues/59824>`_)
 
+- Clang now warns you that the ``_Alignas`` attribute on declaration specifiers
+  is ignored, changed from the former incorrect suggestion to move it past
+  declaration specifiers.
+
+
 Improvements to Clang's diagnostics
 -----------------------------------
 - Clang constexpr evaluator now prints template arguments when displaying

@@ -78,6 +78,7 @@ private:
   unsigned SpellingIndex : 4;
   unsigned IsAlignas : 1;
   unsigned IsRegularKeywordAttribute : 1;
+  unsigned Tok : 4;
 
 protected:
   static constexpr unsigned SpellingNotCalculated = 0xf;
@@ -91,14 +92,17 @@ public:
                    bool IsRegularKeywordAttribute)
         : SyntaxUsed(SyntaxUsed), SpellingIndex(SpellingIndex),
           IsAlignas(IsAlignas),
-          IsRegularKeywordAttribute(IsRegularKeywordAttribute) {}
+          IsRegularKeywordAttribute(IsRegularKeywordAttribute),
+          Tok(tok::TokenKind::unknown) {}
     constexpr Form(tok::TokenKind Tok)
         : SyntaxUsed(AS_Keyword), SpellingIndex(SpellingNotCalculated),
           IsAlignas(Tok == tok::kw_alignas || Tok == tok::kw__Alignas),
-          IsRegularKeywordAttribute(tok::isRegularKeywordAttribute(Tok)) {}
+          IsRegularKeywordAttribute(tok::isRegularKeywordAttribute(Tok)),
+          Tok(Tok) {}
 
     Syntax getSyntax() const { return Syntax(SyntaxUsed); }
     unsigned getSpellingIndex() const { return SpellingIndex; }
+    unsigned getTok() const { return Tok; }
     bool isAlignas() const { return IsAlignas; }
     bool isRegularKeywordAttribute() const { return IsRegularKeywordAttribute; }
 
@@ -119,12 +123,14 @@ public:
   private:
     constexpr Form(Syntax SyntaxUsed)
         : SyntaxUsed(SyntaxUsed), SpellingIndex(SpellingNotCalculated),
-          IsAlignas(0), IsRegularKeywordAttribute(0) {}
+          IsAlignas(0), IsRegularKeywordAttribute(0),
+          Tok(tok::TokenKind::unknown) {}
 
     unsigned SyntaxUsed : 4;
     unsigned SpellingIndex : 4;
     unsigned IsAlignas : 1;
     unsigned IsRegularKeywordAttribute : 1;
+    unsigned Tok : 4;
   };
 
   AttributeCommonInfo(const IdentifierInfo *AttrName,
@@ -135,7 +141,8 @@ public:
         SyntaxUsed(FormUsed.getSyntax()),
         SpellingIndex(FormUsed.getSpellingIndex()),
         IsAlignas(FormUsed.isAlignas()),
-        IsRegularKeywordAttribute(FormUsed.isRegularKeywordAttribute()) {
+        IsRegularKeywordAttribute(FormUsed.isRegularKeywordAttribute()),
+        Tok(FormUsed.getTok()) {
     assert(SyntaxUsed >= AS_GNU && SyntaxUsed <= AS_Implicit &&
            "Invalid syntax!");
   }
@@ -182,18 +189,36 @@ public:
 
   bool isDeclspecAttribute() const { return SyntaxUsed == AS_Declspec; }
   bool isMicrosoftAttribute() const { return SyntaxUsed == AS_Microsoft; }
+  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11; }
+  bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 
   bool isGNUScope() const;
   bool isClangScope() const;
 
   bool isAlignas() const { return IsAlignas; }
-  bool isCXX11Attribute() const { return SyntaxUsed == AS_CXX11; }
-  bool isC23Attribute() const { return SyntaxUsed == AS_C23; }
 
-  /// The attribute is spelled [[]] in either C or C++ mode, including standard
-  /// attributes spelled with a keyword, like alignas.
+  /// Can be treated attribute-specifier in C++
+  ///    [[]] || alignas()
+  bool isCXX11AttributeSpecifier() const {
+    return SyntaxUsed == AS_CXX11 || Tok == tok::TokenKind::kw_alignas;
+  }
+
+  /// Can be treated attribute-specifier in C
+  ///    [[]] || alignas(...) || _Alignas(...)
+  ///
+  /// Note: `attribute-specifier` and `alignment-specifier` are different per
+  /// C23-standard, but is treated similarly by this function.
+  bool isCAttributeSpecifier() const {
+    bool isCAlignAs = (Tok == tok::TokenKind::kw_alignas ||
+                       Tok == tok::TokenKind::kw__Alignas);
+    return SyntaxUsed == AS_C23 || isCAlignAs;
+  }
+
+  /// Can be treated attribute-specifier either of
+  ///   * C :   [[]] || alignas(...) || _Alignas(...)
+  ///   * C++:  [[]] || alignas(...)
   bool isStandardAttributeSyntax() const {
-    return isCXX11Attribute() || isC23Attribute() || IsAlignas;
+    return isCXX11AttributeSpecifier() || isCAttributeSpecifier();
   }
 
   bool isGNUAttribute() const { return SyntaxUsed == AS_GNU; }

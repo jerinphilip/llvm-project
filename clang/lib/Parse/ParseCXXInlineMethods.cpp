@@ -767,7 +767,8 @@ void Parser::ParseLexedAttribute(LateParsedAttribute &LA,
     Diag(Tok, diag::warn_attribute_no_decl) << LA.AttrName.getName();
   }
 
-  if (OnDefinition && !Attrs.empty() && !Attrs.begin()->isCXX11Attribute() &&
+  if (OnDefinition && !Attrs.empty() &&
+      !Attrs.begin()->isCXX11AttributeSpecifier() &&
       Attrs.begin()->isKnownToGCC())
     Diag(Tok, diag::warn_attribute_on_function_definition)
       << &LA.AttrName;

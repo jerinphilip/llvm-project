@@ -43,7 +43,7 @@ static Attr *handleFallThroughAttr(Sema &S, Stmt *St, const ParsedAttr &A,
 
   // If this is spelled as the standard C++17 attribute, but not in C++17, warn
   // about using it as an extension.
-  if (!S.getLangOpts().CPlusPlus17 && A.isCXX11Attribute() &&
+  if (!S.getLangOpts().CPlusPlus17 && A.isCXX11AttributeSpecifier() &&
       !A.getScopeName())
     S.Diag(A.getLoc(), diag::ext_cxx17_attr) << A;
 
@@ -307,7 +307,8 @@ static Attr *handleMustTailAttr(Sema &S, Stmt *St, const ParsedAttr &A,
 static Attr *handleLikely(Sema &S, Stmt *St, const ParsedAttr &A,
                           SourceRange Range) {
 
-  if (!S.getLangOpts().CPlusPlus20 && A.isCXX11Attribute() && !A.getScopeName())
+  if (!S.getLangOpts().CPlusPlus20 && A.isCXX11AttributeSpecifier() &&
+      !A.getScopeName())
     S.Diag(A.getLoc(), diag::ext_cxx20_attr) << A << Range;
 
   return ::new (S.Context) LikelyAttr(S.Context, A);
@@ -316,7 +317,8 @@ static Attr *handleLikely(Sema &S, Stmt *St, const ParsedAttr &A,
 static Attr *handleUnlikely(Sema &S, Stmt *St, const ParsedAttr &A,
                             SourceRange Range) {
 
-  if (!S.getLangOpts().CPlusPlus20 && A.isCXX11Attribute() && !A.getScopeName())
+  if (!S.getLangOpts().CPlusPlus20 && A.isCXX11AttributeSpecifier() &&
+      !A.getScopeName())
     S.Diag(A.getLoc(), diag::ext_cxx20_attr) << A << Range;
 
   return ::new (S.Context) UnlikelyAttr(S.Context, A);

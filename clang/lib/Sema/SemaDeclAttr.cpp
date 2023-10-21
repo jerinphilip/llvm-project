@@ -2342,7 +2342,7 @@ static void handleDependencyAttr(Sema &S, Scope *Scope, Decl *D,
 }
 
 static void handleUnusedAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
-  bool IsCXX17Attr = AL.isCXX11Attribute() && !AL.getScopeName();
+  bool IsCXX17Attr = AL.isCXX11AttributeSpecifier() && !AL.getScopeName();
 
   // If this is spelled as the standard C++17 attribute, but not in C++17, warn
   // about using it as an extension.
@@ -8178,7 +8178,8 @@ static void handleDeprecatedAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
            !S.checkStringLiteralArgumentAttr(AL, 1, Replacement))
     return;
 
-  if (!S.getLangOpts().CPlusPlus14 && AL.isCXX11Attribute() && !AL.isGNUScope())
+  if (!S.getLangOpts().CPlusPlus14 && AL.isCXX11AttributeSpecifier() &&
+      !AL.isGNUScope())
     S.Diag(AL.getLoc(), diag::ext_cxx14_attr) << AL;
 
   D->addAttr(::new (S.Context) DeprecatedAttr(S.Context, AL, Str, Replacement));

@@ -37,6 +37,8 @@
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/ErrorHandling.h"
 
+#include <csignal>
+
 namespace clang {
   class ASTContext;
   class CXXRecordDecl;
@@ -1970,11 +1972,20 @@ public:
         DeclarationAttrs(DeclarationAttrs), AsmLabel(nullptr),
         TrailingRequiresClause(nullptr),
         InventedTemplateParameterList(nullptr) {
-    assert(llvm::all_of(DeclarationAttrs,
-                        [](const ParsedAttr &AL) {
-                          return (AL.isStandardAttributeSyntax() ||
-                                  AL.isRegularKeywordAttribute());
-                        }) &&
+    if (!(DeclarationAttrs.empty() ||
+          llvm::all_of(DeclarationAttrs, [](const ParsedAttr &AL) {
+            return (AL.isStandardAttributeSyntax() ||
+                    AL.isRegularKeywordAttribute());
+          }))) {
+
+      std::raise(SIGTRAP);
+    }
+    assert((DeclarationAttrs.empty() ||
+            llvm::all_of(DeclarationAttrs,
+                         [](const ParsedAttr &AL) {
+                           return (AL.isStandardAttributeSyntax() ||
+                                   AL.isRegularKeywordAttribute());
+                         })) &&
            "DeclarationAttrs may only contain [[]] and keyword attributes");
   }
 

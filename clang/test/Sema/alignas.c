@@ -17,6 +17,8 @@ void f(_Alignas(1) char c) { // expected-error {{'_Alignas' attribute cannot be 
   _Alignas(1) register char k; // expected-error {{'_Alignas' attribute cannot be applied to a variable with 'register' storage class}}
 }
 
+_Alignas(int) struct  alignas_before { int content;}; // expected-warning {{attribute '_Alignas' before "struct" is ignored}}
+
 #ifdef USING_C11_SYNTAX
 // expected-warning@+4{{'_Alignof' applied to an expression is a GNU extension}}
 // expected-warning@+4{{'_Alignof' applied to an expression is a GNU extension}}

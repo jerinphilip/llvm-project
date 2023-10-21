@@ -2562,7 +2562,7 @@ bool Parser::ParseCXXMemberDeclaratorBeforeInitializer(
       // If we saw any GNU-style attributes that are known to GCC followed by a
       // virt-specifier, issue a GCC-compat warning.
       for (const ParsedAttr &AL : DeclaratorInfo.getAttributes())
-        if (AL.isKnownToGCC() && !AL.isCXX11Attribute())
+        if (AL.isKnownToGCC() && !AL.isCXX11AttributeSpecifier())
           Diag(AL.getLoc(), diag::warn_gcc_attribute_location);
 
       MaybeParseAndDiagnoseDeclSpecAfterCXX11VirtSpecifierSeq(DeclaratorInfo,
@@ -3057,7 +3057,7 @@ Parser::ParseCXXClassMemberDeclaration(AccessSpecifier AS,
       // Diagnose attributes that appear in a friend member function declarator:
       //   friend int foo [[]] ();
       for (const ParsedAttr &AL : DeclaratorInfo.getAttributes())
-        if (AL.isCXX11Attribute() || AL.isRegularKeywordAttribute()) {
+        if (AL.isCXX11AttributeSpecifier() || AL.isRegularKeywordAttribute()) {
           auto Loc = AL.getRange().getBegin();
           (AL.isRegularKeywordAttribute()
                ? Diag(Loc, diag::err_keyword_not_allowed) << AL

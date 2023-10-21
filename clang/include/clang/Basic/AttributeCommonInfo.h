@@ -200,7 +200,8 @@ public:
   /// Can be treated attribute-specifier in C++
   ///    [[]] || alignas()
   bool isCXX11AttributeSpecifier() const {
-    return SyntaxUsed == AS_CXX11 || Tok == tok::TokenKind::kw_alignas;
+    return SyntaxUsed == AS_CXX11 ||
+           (IsAlignas && Tok != tok::TokenKind::kw__Alignas);
   }
 
   /// Can be treated attribute-specifier in C
